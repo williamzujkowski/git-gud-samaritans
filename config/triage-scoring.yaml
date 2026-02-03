@@ -1,0 +1,295 @@
+# Triage Scoring Configuration
+# Defines how issues are scored for contribution fitness
+
+# =============================================================================
+# Scoring Weights
+# =============================================================================
+
+weights:
+  # How important each factor is (must sum to 1.0)
+  clarity: 0.25          # How well-defined is the issue?
+  scope: 0.20            # Is it appropriately sized?
+  testability: 0.15      # Can we verify our fix?
+  maintainer_activity: 0.15  # Will our PR get reviewed?
+  codebase_health: 0.15  # Is the codebase in good shape?
+  ai_fit: 0.10           # Is this suitable for AI contribution?
+
+# =============================================================================
+# Clarity Scoring
+# =============================================================================
+
+clarity:
+  # Factors that indicate a clear issue
+  positive_signals:
+    has_description:
+      min_words: 20
+      points: 20
+    has_steps_to_reproduce:
+      keywords: ["steps", "reproduce", "to reproduce", "reproduction"]
+      points: 15
+    has_expected_behavior:
+      keywords: ["expected", "should", "want", "need"]
+      points: 15
+    has_actual_behavior:
+      keywords: ["actual", "instead", "but", "currently", "however"]
+      points: 10
+    has_code_examples:
+      patterns: ["```", "~~~"]
+      points: 15
+    has_version_info:
+      keywords: ["version", "v0.", "v1.", "v2."]
+      points: 5
+    has_environment_info:
+      keywords: ["os", "platform", "python", "node", "browser"]
+      points: 5
+    well_formatted:
+      has_headers: true
+      has_lists: true
+      points: 10
+    links_to_relevant_code:
+      patterns: ["https://github.com/.*/blob/"]
+      points: 5
+
+  # Factors that indicate an unclear issue
+  negative_signals:
+    too_short:
+      max_words: 10
+      penalty: -30
+    vague_title:
+      keywords: ["doesn't work", "broken", "bug", "issue", "problem", "help"]
+      penalty: -10
+    no_context:
+      penalty: -20
+    only_title:
+      penalty: -25
+
+# =============================================================================
+# Scope Scoring
+# =============================================================================
+
+scope:
+  # Ideal scope indicators
+  ideal:
+    single_file_change:
+      points: 25
+    single_function_change:
+      points: 20
+    clear_boundaries:
+      keywords: ["only", "just", "simple", "small", "minor"]
+      points: 15
+    estimated_effort:
+      keywords: ["quick", "easy", "straightforward", "trivial"]
+      points: 10
+
+  # Scope red flags
+  concerning:
+    multiple_areas:
+      keywords: ["and also", "additionally", "as well as", "multiple"]
+      penalty: -15
+    architectural_change:
+      keywords: ["refactor", "redesign", "architecture", "major"]
+      penalty: -25
+    breaking_change:
+      keywords: ["breaking", "incompatible", "migration"]
+      penalty: -30
+    unclear_scope:
+      keywords: ["maybe", "possibly", "might", "could"]
+      penalty: -10
+
+  # Complexity estimation
+  complexity:
+    low:
+      indicators: ["typo", "documentation", "comment", "readme", "example"]
+      points: 20
+    medium:
+      indicators: ["bug", "fix", "enhancement", "feature"]
+      points: 10
+    high:
+      indicators: ["refactor", "performance", "security", "api"]
+      penalty: -10
+
+# =============================================================================
+# Testability Scoring
+# =============================================================================
+
+testability:
+  # Repository test infrastructure
+  repo_factors:
+    has_test_directory:
+      paths: ["test/", "tests/", "spec/", "__tests__/"]
+      points: 20
+    has_ci_tests:
+      points: 25
+    has_test_commands:
+      files: ["package.json", "Makefile", "setup.py", "pyproject.toml"]
+      keywords: ["test", "pytest", "jest", "mocha", "rspec"]
+      points: 15
+    good_coverage:
+      badges: ["coverage", "codecov", "coveralls"]
+      points: 15
+
+  # Issue-specific factors
+  issue_factors:
+    includes_test_case:
+      points: 20
+    reproducible:
+      points: 15
+    has_expected_output:
+      points: 10
+
+  # Penalties
+  penalties:
+    no_tests:
+      penalty: -25
+    flaky_tests_mentioned:
+      keywords: ["flaky", "intermittent", "sometimes fails"]
+      penalty: -15
+
+# =============================================================================
+# Maintainer Activity Scoring
+# =============================================================================
+
+maintainer_activity:
+  # Positive indicators
+  positive:
+    recent_commits:
+      within_days: 30
+      points: 20
+    recent_releases:
+      within_days: 90
+      points: 15
+    responsive_to_issues:
+      avg_response_days: 7
+      points: 25
+    responsive_to_prs:
+      avg_review_days: 14
+      points: 25
+    active_discussions:
+      points: 10
+    maintainer_commented_on_issue:
+      points: 15
+
+  # Concerning indicators
+  concerning:
+    no_recent_activity:
+      days: 90
+      penalty: -20
+    many_stale_issues:
+      count: 50
+      penalty: -10
+    many_stale_prs:
+      count: 20
+      penalty: -15
+    ignored_contributions:
+      penalty: -25
+
+# =============================================================================
+# Codebase Health Scoring
+# =============================================================================
+
+codebase_health:
+  # Positive indicators
+  positive:
+    has_readme:
+      points: 10
+    has_contributing_guide:
+      points: 15
+    has_code_of_conduct:
+      points: 5
+    has_license:
+      points: 10
+    consistent_style:
+      files: [".editorconfig", ".prettierrc", "setup.cfg", "pyproject.toml"]
+      points: 10
+    has_linting:
+      files: [".eslintrc", ".flake8", "pylintrc", ".rubocop.yml"]
+      points: 10
+    type_hints:
+      files: ["py.typed", "tsconfig.json"]
+      points: 10
+    good_documentation:
+      points: 15
+
+  # Concerning indicators
+  concerning:
+    many_dependencies:
+      threshold: 50
+      penalty: -10
+    security_advisories:
+      penalty: -15
+    deprecated_dependencies:
+      penalty: -10
+    no_ci:
+      penalty: -20
+
+# =============================================================================
+# AI Fit Scoring
+# =============================================================================
+
+ai_fit:
+  # Good fit for AI contribution
+  positive:
+    documentation_task:
+      labels: ["documentation", "docs", "readme"]
+      points: 25
+    test_task:
+      labels: ["test", "testing", "coverage"]
+      points: 20
+    simple_bug:
+      labels: ["bug", "fix"]
+      points: 15
+    typo_fix:
+      labels: ["typo", "spelling"]
+      points: 25
+    example_code:
+      labels: ["example", "sample"]
+      points: 20
+    clear_implementation:
+      points: 15
+
+  # Less suitable for AI
+  concerning:
+    design_decision_needed:
+      labels: ["needs design", "rfc", "discussion"]
+      penalty: -25
+    subjective:
+      labels: ["opinion", "preference", "style"]
+      penalty: -20
+    requires_domain_expertise:
+      labels: ["domain", "expert", "specialized"]
+      penalty: -20
+    security_sensitive:
+      labels: ["security", "vulnerability", "cve"]
+      penalty: -30
+    performance_optimization:
+      labels: ["performance", "optimization", "benchmark"]
+      penalty: -15
+
+# =============================================================================
+# Final Score Calculation
+# =============================================================================
+
+scoring:
+  # Score thresholds
+  thresholds:
+    excellent: 80    # Definitely contribute
+    good: 60         # Worth considering
+    marginal: 40     # Maybe, with caution
+    poor: 20         # Probably skip
+
+  # Score adjustments
+  adjustments:
+    # Bonus for multiple positive signals
+    clarity_bonus:
+      threshold: 4    # Number of positive clarity signals
+      bonus: 10
+
+    # Penalty for red flags
+    red_flag_penalty:
+      max_penalty: -30
+
+  # Output format
+  output:
+    include_breakdown: true
+    include_recommendations: true
+    include_risks: true

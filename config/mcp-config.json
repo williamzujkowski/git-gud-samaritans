@@ -1,0 +1,160 @@
+{
+  "mcpServers": {
+    "nexus-agents": {
+      "command": "nexus-agents",
+      "args": ["--mode=server"],
+      "env": {
+        "NEXUS_CONFIG": "${workspaceFolder}/config/nexus-config.yaml",
+        "LOG_LEVEL": "${LOG_LEVEL:-INFO}"
+      },
+      "description": "nexus-agents v2.4.0 multi-agent orchestration MCP server"
+    },
+    "git-gud-samaritans": {
+      "command": "python",
+      "args": ["-m", "git_gud_samaritans.mcp_server"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "GITHUB_TOKEN": "${GITHUB_TOKEN}",
+        "CONFIG_PATH": "${workspaceFolder}/config",
+        "LOG_LEVEL": "${LOG_LEVEL:-INFO}"
+      },
+      "description": "git-gud-samaritans discovery, triage, and contribution tools"
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      },
+      "description": "GitHub MCP server for repository operations"
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "${workspaceFolder}/workspace"
+      ],
+      "description": "Filesystem access for working with cloned repos"
+    }
+  },
+  "tools": {
+    "git-gud-samaritans": {
+      "discover_opportunities": {
+        "description": "Find repositories and issues that welcome contributions",
+        "parameters": {
+          "languages": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Programming languages to filter by"
+          },
+          "labels": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Issue labels to search for"
+          },
+          "min_stars": {
+            "type": "integer",
+            "description": "Minimum repository stars"
+          },
+          "max_results": {
+            "type": "integer",
+            "default": 20,
+            "description": "Maximum number of results to return"
+          }
+        }
+      },
+      "triage_issue": {
+        "description": "Score an issue for contribution fitness",
+        "parameters": {
+          "issue_url": {
+            "type": "string",
+            "description": "Full URL to the GitHub issue"
+          }
+        }
+      },
+      "analyze_codebase": {
+        "description": "Understand a repository's structure and conventions",
+        "parameters": {
+          "repo_url": {
+            "type": "string",
+            "description": "Repository URL or owner/repo format"
+          }
+        }
+      },
+      "plan_contribution": {
+        "description": "Generate a contribution plan for an issue",
+        "parameters": {
+          "issue_url": {
+            "type": "string",
+            "description": "Full URL to the GitHub issue"
+          },
+          "analysis": {
+            "type": "object",
+            "description": "Optional: Previous codebase analysis"
+          }
+        }
+      },
+      "submit_contribution": {
+        "description": "Execute the full contribution workflow",
+        "parameters": {
+          "issue_url": {
+            "type": "string",
+            "description": "Full URL to the GitHub issue"
+          },
+          "plan": {
+            "type": "object",
+            "description": "Contribution plan from plan_contribution"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "default": false,
+            "description": "If true, don't actually submit the PR"
+          }
+        }
+      },
+      "get_metrics": {
+        "description": "Retrieve contribution statistics",
+        "parameters": {
+          "period": {
+            "type": "string",
+            "enum": ["7d", "30d", "90d", "all"],
+            "default": "30d",
+            "description": "Time period for metrics"
+          }
+        }
+      }
+    }
+  },
+  "workflows": {
+    "full_contribution": {
+      "description": "Complete workflow: discover -> triage -> contribute",
+      "steps": [
+        {
+          "tool": "discover_opportunities",
+          "output": "opportunities"
+        },
+        {
+          "tool": "triage_issue",
+          "input": "opportunities[0].url",
+          "output": "triage_result"
+        },
+        {
+          "condition": "triage_result.score >= 60",
+          "tool": "analyze_codebase",
+          "output": "analysis"
+        },
+        {
+          "tool": "plan_contribution",
+          "input": ["opportunities[0].url", "analysis"],
+          "output": "plan"
+        },
+        {
+          "tool": "submit_contribution",
+          "input": ["opportunities[0].url", "plan"],
+          "output": "result"
+        }
+      ]
+    }
+  }
+}

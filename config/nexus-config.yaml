@@ -1,0 +1,192 @@
+# nexus-agents Configuration for git-gud-samaritans
+# This configures the AI agent orchestration for contribution workflows
+
+orchestrator:
+  name: "git-gud-samaritans"
+  version: "0.1.0"
+
+  # Agent pool configuration
+  agents:
+    max_concurrent: 5
+    timeout_seconds: 300
+    retry_attempts: 3
+
+  # Iterative loop settings
+  loops:
+    max_iterations: 10
+    convergence_threshold: 0.95
+    early_exit_on_success: true
+
+# Agent definitions
+agents:
+  researcher:
+    role: "Codebase Researcher"
+    description: "Analyzes repository structure, conventions, and context"
+    capabilities:
+      - file_analysis
+      - dependency_mapping
+      - convention_detection
+      - documentation_parsing
+    prompts:
+      system: "prompts/agents/researcher_system.md"
+      task: "prompts/agents/researcher_task.md"
+
+  planner:
+    role: "Contribution Planner"
+    description: "Creates detailed implementation plans for issues"
+    capabilities:
+      - task_decomposition
+      - risk_assessment
+      - effort_estimation
+      - test_planning
+    prompts:
+      system: "prompts/agents/planner_system.md"
+      task: "prompts/agents/planner_task.md"
+    dependencies:
+      - researcher
+
+  implementer:
+    role: "Code Implementer"
+    description: "Writes code changes according to the plan"
+    capabilities:
+      - code_generation
+      - test_writing
+      - style_matching
+      - documentation_updates
+    prompts:
+      system: "prompts/agents/implementer_system.md"
+      task: "prompts/agents/implementer_task.md"
+    dependencies:
+      - planner
+
+  reviewer:
+    role: "Self-Reviewer"
+    description: "Reviews changes before submission"
+    capabilities:
+      - code_review
+      - test_verification
+      - style_checking
+      - security_scanning
+    prompts:
+      system: "prompts/agents/reviewer_system.md"
+      task: "prompts/agents/reviewer_task.md"
+    dependencies:
+      - implementer
+
+  communicator:
+    role: "PR Communicator"
+    description: "Writes clear PR descriptions and responds to feedback"
+    capabilities:
+      - technical_writing
+      - context_summarization
+      - feedback_response
+    prompts:
+      system: "prompts/agents/communicator_system.md"
+      task: "prompts/agents/communicator_task.md"
+    dependencies:
+      - reviewer
+
+# Workflow definitions
+workflows:
+  research:
+    description: "Understand a codebase"
+    agents: [researcher]
+    outputs:
+      - structure_map
+      - conventions
+      - dependencies
+      - test_framework
+
+  plan:
+    description: "Create a contribution plan"
+    agents: [researcher, planner]
+    outputs:
+      - implementation_plan
+      - test_plan
+      - risk_assessment
+      - estimated_effort
+
+  implement:
+    description: "Implement the planned changes"
+    agents: [researcher, planner, implementer]
+    outputs:
+      - code_changes
+      - test_additions
+      - documentation_updates
+
+  full_contribution:
+    description: "Complete contribution workflow"
+    agents: [researcher, planner, implementer, reviewer, communicator]
+    outputs:
+      - code_changes
+      - test_additions
+      - documentation_updates
+      - pr_description
+      - review_checklist
+
+# Quality gates
+quality_gates:
+  pre_commit:
+    - name: "lint"
+      command: "auto-detect"  # Detects repo's linter
+      required: true
+    - name: "format"
+      command: "auto-detect"
+      required: true
+    - name: "type_check"
+      command: "auto-detect"
+      required: false
+
+  pre_submit:
+    - name: "tests"
+      command: "auto-detect"
+      required: true
+    - name: "coverage"
+      threshold: 80
+      required: false
+    - name: "security_scan"
+      command: "auto-detect"
+      required: false
+
+# Learning & feedback
+learning:
+  enabled: true
+
+  # Track outcomes for improvement
+  track_outcomes:
+    - pr_merged
+    - pr_closed
+    - pr_feedback
+    - review_iterations
+
+  # Patterns to learn from
+  patterns:
+    - successful_fixes
+    - common_feedback
+    - style_preferences
+    - test_patterns
+
+  # Storage
+  storage:
+    type: "sqlite"
+    path: "./data/learning.db"
+
+# Safety & limits
+safety:
+  # Never modify these files
+  protected_files:
+    - ".github/workflows/*"
+    - "*.lock"
+    - "*.sum"
+    - ".env*"
+    - "secrets*"
+
+  # Maximum changes per PR
+  max_files_changed: 20
+  max_lines_changed: 500
+
+  # Require human approval for
+  require_approval:
+    - security_related_changes
+    - dependency_updates
+    - breaking_changes

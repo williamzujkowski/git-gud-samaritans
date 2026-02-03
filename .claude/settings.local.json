@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3:*)",
+      "Bash(pytest:*)",
+      "Bash(pip:*)",
+      "Bash(git:*)",
+      "Bash(gh:*)",
+      "Bash(make:*)",
+      "Bash(uv:*)",
+      "Bash(nexus-agents:*)"
+    ]
+  },
+  "enableAllProjectMcpServers": true
+}

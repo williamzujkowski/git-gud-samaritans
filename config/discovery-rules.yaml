@@ -1,0 +1,260 @@
+# Discovery Rules Configuration
+# Defines criteria for finding repositories and issues that welcome contributions
+
+# =============================================================================
+# Repository Filters
+# =============================================================================
+
+repositories:
+  # Minimum requirements
+  minimum:
+    stars: 10
+    forks: 2
+    open_issues: 1
+
+  # Maximum limits (avoid overwhelming projects)
+  maximum:
+    open_issues: 500
+
+  # Activity requirements
+  activity:
+    max_days_since_commit: 90
+    max_days_since_release: 365
+    min_contributors: 2
+
+  # Required files (at least one must exist)
+  required_files:
+    - CONTRIBUTING.md
+    - .github/CONTRIBUTING.md
+    - docs/CONTRIBUTING.md
+    - CONTRIBUTE.md
+
+  # Preferred files (bonus points)
+  preferred_files:
+    - CODE_OF_CONDUCT.md
+    - .github/ISSUE_TEMPLATE
+    - .github/PULL_REQUEST_TEMPLATE.md
+    - .github/workflows  # Has CI
+
+  # Exclude patterns
+  exclude:
+    # Archived or inactive
+    archived: true
+    disabled: true
+
+    # Topics that indicate not suitable
+    topics:
+      - deprecated
+      - unmaintained
+      - archived
+      - mirror
+      - fork-only
+
+    # Owners to skip (forks, mirrors, bots)
+    owner_patterns:
+      - "*-mirror"
+      - "*-bot"
+      - "dependabot"
+
+# =============================================================================
+# Issue Filters
+# =============================================================================
+
+issues:
+  # Labels that indicate good contribution opportunities
+  include_labels:
+    high_priority:
+      - "good first issue"
+      - "good-first-issue"
+      - "beginner"
+      - "beginner-friendly"
+      - "first-timers-only"
+      - "easy"
+      - "starter"
+
+    medium_priority:
+      - "help wanted"
+      - "help-wanted"
+      - "contributions welcome"
+      - "hacktoberfest"
+      - "up-for-grabs"
+
+    low_priority:
+      - "enhancement"
+      - "feature"
+      - "improvement"
+
+  # Labels that indicate NOT to contribute
+  exclude_labels:
+    - "wontfix"
+    - "won't fix"
+    - "invalid"
+    - "duplicate"
+    - "on hold"
+    - "blocked"
+    - "needs discussion"
+    - "needs design"
+    - "breaking change"
+    - "security"
+    - "do not merge"
+    - "work in progress"
+    - "wip"
+    - "claimed"
+    - "assigned"
+
+  # Age filters
+  age:
+    min_days: 2      # Give maintainers time to refine
+    max_days: 365    # Very old issues might be stale
+
+  # Engagement filters
+  engagement:
+    max_comments: 50         # Too many comments = too complex/controversial
+    max_linked_prs: 2        # Others might already be working on it
+    require_no_assignee: true
+
+  # Content requirements
+  content:
+    min_body_length: 50      # Needs some description
+    require_reproduction: false  # For bugs
+
+  # Types to include
+  types:
+    - bug
+    - enhancement
+    - documentation
+    - test
+    - refactor
+
+# =============================================================================
+# Pull Request Filters (for finding stale PRs to help with)
+# =============================================================================
+
+pull_requests:
+  # Stale PR criteria
+  stale:
+    min_days_since_update: 30
+    min_days_since_review: 14
+
+  # States to consider
+  states:
+    - open
+
+  # Look for PRs that need help
+  indicators:
+    labels:
+      - "needs update"
+      - "needs rebase"
+      - "needs tests"
+      - "needs documentation"
+      - "stale"
+
+    # Review states
+    review_states:
+      - "changes_requested"
+
+  # Exclude
+  exclude:
+    draft: true
+    labels:
+      - "do not merge"
+      - "wip"
+      - "work in progress"
+
+# =============================================================================
+# Language Configuration
+# =============================================================================
+
+languages:
+  # Languages we support well
+  primary:
+    - python
+    - javascript
+    - typescript
+    - rust
+    - go
+
+  # Languages we can handle
+  secondary:
+    - java
+    - c
+    - cpp
+    - csharp
+    - ruby
+    - php
+
+  # Languages to avoid (for now)
+  exclude:
+    - assembly
+    - fortran
+    - cobol
+    - vhdl
+
+# =============================================================================
+# Search Strategies
+# =============================================================================
+
+search:
+  # GitHub search queries
+  queries:
+    # Good first issues in active repos
+    good_first_issues: |
+      is:issue
+      is:open
+      label:"good first issue"
+      no:assignee
+      -label:claimed
+      sort:updated-desc
+
+    # Help wanted
+    help_wanted: |
+      is:issue
+      is:open
+      label:"help wanted"
+      no:assignee
+      sort:updated-desc
+
+    # Hacktoberfest
+    hacktoberfest: |
+      is:issue
+      is:open
+      label:hacktoberfest
+      no:assignee
+      sort:updated-desc
+
+  # Rate limiting
+  rate_limit:
+    requests_per_minute: 30
+    buffer_remaining: 100
+
+  # Pagination
+  pagination:
+    per_page: 100
+    max_pages: 10
+
+# =============================================================================
+# Scoring Bonuses (used in triage)
+# =============================================================================
+
+scoring_bonuses:
+  # Repository bonuses
+  repo:
+    has_contributing_guide: 10
+    has_code_of_conduct: 5
+    has_ci: 15
+    has_tests: 20
+    responsive_maintainers: 15  # < 7 days avg response time
+
+  # Issue bonuses
+  issue:
+    well_described: 10
+    has_reproduction: 10
+    has_expected_behavior: 5
+    recent_maintainer_comment: 10
+
+  # Penalties
+  penalties:
+    many_comments: -10          # > 20 comments
+    long_discussion: -15        # Contentious
+    stale_issue: -5            # > 180 days old
+    complex_codebase: -10      # Many dependencies

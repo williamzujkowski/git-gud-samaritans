@@ -1,0 +1,86 @@
+# Sandbox Configuration for git-gud-samaritans
+# Resource profiles and security settings for VM-based isolation
+
+# Host resource constraints
+host:
+  # Total host RAM in GB
+  total_ram_gb: 64
+  # Total host cores
+  total_cores: 16
+  # RAM reserved for host OS and services
+  reserved_ram_gb: 16
+  # Cores reserved for host
+  reserved_cores: 4
+  # Maximum concurrent sandboxes
+  max_concurrent: 3
+
+# Resource profiles for sandbox VMs
+profiles:
+  light:
+    description: "Documentation fixes, typo corrections"
+    memory_mb: 8192
+    vcpus: 2
+    use_cases:
+      - README updates
+      - Docstring fixes
+      - Simple config changes
+      - Documentation-only issues
+
+  standard:
+    description: "Typical code changes (default)"
+    memory_mb: 12288
+    vcpus: 4
+    default: true
+    use_cases:
+      - Bug fixes
+      - Feature additions
+      - Test additions
+      - Refactoring
+
+  heavy:
+    description: "Build-heavy projects, Docker workloads"
+    memory_mb: 16384
+    vcpus: 6
+    use_cases:
+      - Projects with Docker/containers
+      - Large test suites
+      - Compilation-heavy projects
+      - Full integration testing
+
+# moltdown integration
+moltdown:
+  # Base VM to clone from (must have 'dev-ready' snapshot)
+  base_vm: ubuntu2404-agent
+  # Use linked clones (copy-on-write, instant creation)
+  use_linked_clones: true
+
+# Network security settings (Phase 2)
+# network:
+#   mode: isolated
+#   egress_allowlist:
+#     - github.com
+#     - api.github.com
+#     - raw.githubusercontent.com
+#     - pypi.org
+#     - files.pythonhosted.org
+#     - npmjs.org
+#     - registry.npmjs.org
+
+# Token security settings (Phase 2)
+# tokens:
+#   # Use scoped fine-grained PATs instead of full access
+#   use_scoped_tokens: true
+#   # Token expiry in hours
+#   expiry_hours: 24
+#   # Required permissions for contribution
+#   permissions:
+#     - contents:write
+#     - pull_requests:write
+
+# Warm pool settings (Phase 4)
+# warm_pool:
+#   enabled: false
+#   # Number of idle clones to maintain
+#   count: 2
+#   # Profile for warm pool clones
+#   profile: standard
