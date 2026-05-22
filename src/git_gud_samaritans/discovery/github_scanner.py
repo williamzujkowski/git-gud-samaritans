@@ -56,7 +56,7 @@ class GitHubScanner:
     def _check_rate_limit(self) -> None:
         """Check and log current rate limit status."""
         rate_limit = self.client.get_rate_limit()
-        core = rate_limit.core
+        core = rate_limit.resources.core
 
         logger.info(
             "github_rate_limit",
