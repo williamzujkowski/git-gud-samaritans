@@ -45,9 +45,11 @@ class TestGitHubScanner:
         """Scanner should initialize with environment token."""
         mock_client = MagicMock()
         mock_rate_limit = MagicMock()
-        mock_rate_limit.core.remaining = 5000
-        mock_rate_limit.core.limit = 5000
-        mock_rate_limit.core.reset.isoformat.return_value = "2024-01-01T00:00:00"
+        mock_rate_limit.resources.core.remaining = 5000
+        mock_rate_limit.resources.core.limit = 5000
+        mock_rate_limit.resources.core.reset.isoformat.return_value = (
+            "2024-01-01T00:00:00"
+        )
         mock_client.get_rate_limit.return_value = mock_rate_limit
         mock_github.return_value = mock_client
 
@@ -60,9 +62,11 @@ class TestGitHubScanner:
         """Scanner should initialize with explicit token."""
         mock_client = MagicMock()
         mock_rate_limit = MagicMock()
-        mock_rate_limit.core.remaining = 5000
-        mock_rate_limit.core.limit = 5000
-        mock_rate_limit.core.reset.isoformat.return_value = "2024-01-01T00:00:00"
+        mock_rate_limit.resources.core.remaining = 5000
+        mock_rate_limit.resources.core.limit = 5000
+        mock_rate_limit.resources.core.reset.isoformat.return_value = (
+            "2024-01-01T00:00:00"
+        )
         mock_client.get_rate_limit.return_value = mock_rate_limit
         mock_github.return_value = mock_client
 
@@ -80,9 +84,11 @@ class TestGitHubScanner:
         """Scanner should search for issues."""
         mock_client = MagicMock()
         mock_rate_limit = MagicMock()
-        mock_rate_limit.core.remaining = 5000
-        mock_rate_limit.core.limit = 5000
-        mock_rate_limit.core.reset.isoformat.return_value = "2024-01-01T00:00:00"
+        mock_rate_limit.resources.core.remaining = 5000
+        mock_rate_limit.resources.core.limit = 5000
+        mock_rate_limit.resources.core.reset.isoformat.return_value = (
+            "2024-01-01T00:00:00"
+        )
         mock_client.get_rate_limit.return_value = mock_rate_limit
 
         # Mock issue search results

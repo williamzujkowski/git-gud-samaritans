@@ -14,9 +14,9 @@ def mock_github_client() -> MagicMock:
 
     # Mock rate limit
     rate_limit = MagicMock()
-    rate_limit.core.remaining = 5000
-    rate_limit.core.limit = 5000
-    rate_limit.core.reset.isoformat.return_value = "2024-01-01T00:00:00"
+    rate_limit.resources.core.remaining = 5000
+    rate_limit.resources.core.limit = 5000
+    rate_limit.resources.core.reset.isoformat.return_value = "2024-01-01T00:00:00"
     client.get_rate_limit.return_value = rate_limit
 
     return client
